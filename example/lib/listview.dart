@@ -29,7 +29,7 @@ class _ListItemPlayerState extends State<ListItemPlayer> {
     int mills = widget.index <= 3 ? 100 : 500;
     _timer = Timer(Duration(milliseconds: mills), () async {
       _player = FijkPlayer();
-      await _player?.setDataSource("asset:///assets/butterfly.mp4");
+      await _player?.setDataSource("https://media.w3.org/2010/05/sintel/trailer.mp4");
       await _player?.prepareAsync();
       scrollListener();
       if (mounted) {

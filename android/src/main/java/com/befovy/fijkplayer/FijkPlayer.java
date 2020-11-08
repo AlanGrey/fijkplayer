@@ -33,6 +33,8 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 
+import com.danikula.videocache.HttpProxyCacheServer;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -400,6 +402,12 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             result.success(null);
         } else if (call.method.equals("setDataSource")) {
             String url = call.argument("url");
+            if (url != null && (url.startsWith("http") || url.startsWith("https"))) {
+                if (mEngine.context() != null) {
+                    HttpProxyCacheServer proxy = VideoCacheServer.getProxy(mEngine.context());
+                    url = proxy.getProxyUrl(url);
+                }
+            }
             Uri uri = Uri.parse(url);
             boolean openAsset = false;
             if ("asset".equals(uri.getScheme())) {
@@ -417,7 +425,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                     AssetManager assetManager = context.getAssets();
                     InputStream is = assetManager.open(uri.getPath() != null ? uri.getPath() : "", AssetManager.ACCESS_RANDOM);
                     mIjkMediaPlayer.setDataSource(new RawMediaDataSource(is));
-                } else if (context != null){
+                } else if (context != null) {
                     if (TextUtils.isEmpty(uri.getScheme()) || "file".equals(uri.getScheme())) {
                         String path = uri.getPath() != null ? uri.getPath() : "";
                         IMediaDataSource dataSource = new FileMediaDataSource(new File(path));
